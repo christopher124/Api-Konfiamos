@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <!-- <title>Registro Exitoso</title> -->
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0;
+        padding: 0;
+        color: #444;
+      }
+      .header {
+        background-color: #1a73e8;
+        color: #fff;
+        padding: 20px;
+      }
+      .header h1 {
+        margin: 0;
+      }
+      .content {
+        padding: 20px;
+      }
+      .button {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 7px;
+        text-align: center;
+        outline: none;
+        text-decoration: none !important;
+        color: #ffffff !important;
+        width: 200px;
+        height: 32px;
+        border-radius: 16px;
+        background-color: #0a66c2;
+        font-family: "SF Pro Text", Helvetica, sans-serif;
+      }
+      .button:hover {
+        background-color: #0d47a1;
+      }
+      .footer {
+        background-color: #f8f9fa;
+        color: #444;
+        padding: 20px;
+        font-size: 12px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>Konfiamos</h1>
+    </div>
+    <div class="content">
+      <p>¡Hola {{firstname}} {{lastname}}!</p>
+      <p>
+        Te has registrado exitosamente en Konfiamos. Ahora necesitamos que
+        cargues tu avatar siendo el caso que usted lo necesite. Por favor inicia
+        sesión en tu cuenta con los siguientes datos:
+      </p>
+      <p><strong>Correo:</strong> {{email}}</p>
+      <p><strong>Rol:</strong> {{role}}</p>
+      <p><strong>Contraseña:</strong> {{password}}</p>
+      <p>A continuación, puedes iniciar sesión en el siguiente enlace:</p>
+      <a href="localhost:3000/admin" class="button">Iniciar Sesión</a>
+    </div>
+    <div class="footer">
+      <p>
+        Este correo electrónico es informativo y no es necesario responder a él.
+        Si tienes alguna pregunta o inquietud, por favor contáctanos en
+        soporte@konfiamos.com
+      </p>
+    </div>
+  </body>
+</html>
