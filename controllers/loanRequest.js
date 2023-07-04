@@ -6,7 +6,6 @@ const Payment = require("../models/payment");
 const Customer = require("../models/customer");
 const venom = require("venom-bot");
 const puppeteer = require("puppeteer");
-
 // Función para crear una solicitud de préstamo
 async function createLoanRequest(req, res) {
   const { customerId, amountRequested, period, startDate, interestRate } =
@@ -438,25 +437,22 @@ async function sendPaymentReminderToOwner() {
 
 // Función para enviar un mensaje utilizando Venom Bot y obtener el préstamo correspondiente al código
 // Función para iniciar Venom Bot
-const browser = await puppeteer.launch({
-  headless: true,
-  args: ["--use-gl=egl"],
-});
-
 async function initVenomBot() {
-  if (!client) {
-    try {
-      client = await venom.create({
-        session: "session-name", //name of session
-        browser,
-      });
-      start(client);
-    } catch (error) {
-      console.error("Error al iniciar Venom Bot:", error);
-    }
+  let client = null;
+
+  try {
+    const browser = await puppeteer.launch({ headless: true });
+
+    client = await venom.create({
+      session: "session-name", // Nombre de la sesión
+      browser: browser,
+    });
+
+    start(client);
+  } catch (error) {
+    console.error("Error al iniciar Venom Bot:", error);
   }
 }
-let client = null;
 let waitingForPaymentDate = false;
 let waitingForEmail = false;
 
