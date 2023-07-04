@@ -5,7 +5,6 @@ const LoanRequest = require("../models/loanRequest");
 const Payment = require("../models/payment");
 const Customer = require("../models/customer");
 const venom = require("venom-bot");
-const puppeteer = require("puppeteer");
 // Función para crear una solicitud de préstamo
 async function createLoanRequest(req, res) {
   const { customerId, amountRequested, period, startDate, interestRate } =
