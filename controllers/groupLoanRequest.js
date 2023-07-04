@@ -1,6 +1,6 @@
 const Customer = require("../models/customer");
-const GroupLoanRequestClient = require("../models/GroupLoanRequestClient");
-const GroupLoanRequest = require("../models/GroupLoanRequest");
+const GroupLoanRequestClient = require("../models/groupLoanRequestClient");
+const GroupLoanRequest = require("../models/groupLoanRequest");
 
 // Controlador para crear un grupo de préstamo
 const createGroupLoanRequest = async (req, res) => {
