@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const deletePlugin = require("mongoose-delete");
-const mongoosePaginate = require("mongoose-paginate");
 
 const UserSchema = mongoose.Schema({
   firstname: String,
@@ -31,6 +30,5 @@ UserSchema.plugin(deletePlugin, {
   deletedAt: true, // Agregar campo "deletedAt"
   overrideMethods: true, // Sobrescribir métodos para incluir borrado lógico
 });
-UserSchema.plugin(mongoosePaginate);
 
 module.exports = mongoose.model("User", UserSchema);
