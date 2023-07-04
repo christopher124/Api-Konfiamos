@@ -1,5 +1,5 @@
 const LoanRequest = require("../models/loanRequest");
-const Payment = require("../models/Payment");
+const Payment = require("../models/payment");
 
 // Función para recuperar los pagos de un prestamo
 async function getLoanPayments(req, res) {

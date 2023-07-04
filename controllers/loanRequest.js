@@ -2,7 +2,7 @@ const moment = require("moment");
 require("moment/locale/es");
 const Big = require("big.js");
 const LoanRequest = require("../models/loanRequest");
-const Payment = require("../models/Payment");
+const Payment = require("../models/payment");
 const Customer = require("../models/customer");
 const venom = require("venom-bot");
 
