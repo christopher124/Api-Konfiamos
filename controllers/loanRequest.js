@@ -437,25 +437,25 @@ async function sendPaymentReminderToOwner() {
 
 // Función para enviar un mensaje utilizando Venom Bot y obtener el préstamo correspondiente al código
 // Función para iniciar Venom Bot
-const browser = await puppeteer.launch({
-  headless: true,
-  args: ["--no-sandbox", "--disable-setuid-sandbox"],
-});
-
 async function initVenomBot() {
-  if (!client) {
-    try {
-      client = await venom.create({
-        session: "session-name", //name of session
-        browser,
-      });
-      start(client);
-    } catch (error) {
-      console.error("Error al iniciar Venom Bot:", error);
-    }
+  let client = null;
+
+  try {
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+
+    client = await venom.create({
+      session: "session-name", // Nombre de la sesión
+      browser: browser,
+    });
+
+    start(client);
+  } catch (error) {
+    console.error("Error al iniciar Venom Bot:", error);
   }
 }
-let client = null;
 let waitingForPaymentDate = false;
 let waitingForEmail = false;
 
