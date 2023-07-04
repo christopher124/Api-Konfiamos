@@ -5,6 +5,7 @@ const LoanRequest = require("../models/loanRequest");
 const Payment = require("../models/payment");
 const Customer = require("../models/customer");
 const venom = require("venom-bot");
+const puppeteer = require("puppeteer");
 
 // Función para crear una solicitud de préstamo
 async function createLoanRequest(req, res) {
@@ -437,11 +438,17 @@ async function sendPaymentReminderToOwner() {
 
 // Función para enviar un mensaje utilizando Venom Bot y obtener el préstamo correspondiente al código
 // Función para iniciar Venom Bot
+const browser = await puppeteer.launch({
+  headless: true,
+  args: ["--use-gl=egl"],
+});
+
 async function initVenomBot() {
   if (!client) {
     try {
       client = await venom.create({
         session: "session-name", //name of session
+        browser,
       });
       start(client);
     } catch (error) {
