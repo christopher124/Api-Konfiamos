@@ -1,0 +1,29 @@
+{
+  "name": "web-konfiamos-api",
+  "version": "0.0.1",
+  "description": "Api de konfiamos",
+  "main": "index.js",
+  "author": "Christopher Uriel Sosa Garcia",
+  "license": "MIT",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon node index.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "big.js": "^6.2.1",
+    "body-parser": "^1.20.2",
+    "connect-multiparty": "^2.2.0",
+    "cors": "^2.8.5",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "handlebars": "^4.7.7",
+    "jsonwebtoken": "^9.0.0",
+    "moment": "^2.29.4",
+    "mongoose": "^7.3.1",
+    "mongoose-delete": "^1.0.1",
+    "node-mailjet": "^6.0.2",
+    "nodemon": "^2.0.22",
+    "venom-bot": "^5.0.11"
+  }
+}
