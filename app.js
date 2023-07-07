@@ -9,6 +9,10 @@ const { API_VERSION } = require("./constants");
 
 const app = express();
 
+let client = null;
+let waitingForPaymentDate = false;
+let waitingForEmail = false;
+
 async function initVenomBot() {
   if (!client) {
     client = await venom
@@ -48,10 +52,6 @@ async function initVenomBot() {
       });
   }
 }
-
-let client = null;
-let waitingForPaymentDate = false;
-let waitingForEmail = false;
 
 function start(client) {
   client.onMessage(async (message) => {
