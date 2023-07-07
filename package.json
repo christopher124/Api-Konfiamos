@@ -6,7 +6,8 @@
   "author": "Christopher Uriel Sosa Garcia",
   "license": "MIT",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -23,6 +24,7 @@
     "mongoose-delete": "^1.0.1",
     "node-mailjet": "^6.0.2",
     "puppeteer": "^20.7.4",
+    "qrcode": "^1.5.3",
     "venom-bot": "5.0.6"
   },
   "devDependencies": {
