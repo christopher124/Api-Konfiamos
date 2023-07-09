@@ -22,6 +22,7 @@ async function initVenomBot() {
         {
           session: "session-name", //name of session
           autoClose: false, // Evitar el cierre automático del cliente
+          browserArgs: ["--no-sandbox"],
         },
         (base64Qr, asciiQR, attempts, urlCode) => {
           console.log(asciiQR); // Optional to log the QR in the terminal
