@@ -18,39 +18,13 @@ let waitingForCode = false;
 async function initVenomBot() {
   if (!client) {
     client = await venom
-      .create(
-        {
-          session: "session-name", //name of session
-          autoClose: false, // Evitar el cierre automático del cliente
-        },
-        (base64Qr, asciiQR, attempts, urlCode) => {
-          console.log(asciiQR); // Optional to log the QR in the terminal
-          var matches = base64Qr.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
-            response = {};
-
-          if (matches.length !== 3) {
-            return new Error("Invalid input string");
-          }
-          response.type = matches[1];
-          response.data = new Buffer.from(matches[2], "base64");
-
-          var imageBuffer = response;
-          require("fs").writeFile(
-            "out.png",
-            imageBuffer["data"],
-            "binary",
-            function (err) {
-              if (err != null) {
-                console.log(err);
-              }
-            }
-          );
-        },
-        undefined
-      )
+      .create({
+        session: "session-name", //name of session
+        autoClose: false, // Evitar el cierre automático del cliente
+      })
       .then((client) => start(client))
-      .catch((erro) => {
-        console.log(erro);
+      .catch((error) => {
+        console.log(error);
       });
   }
 }
@@ -207,12 +181,6 @@ function start(client) {
 
 // Llamar a la función para iniciar Venom Bot
 initVenomBot();
-
-// Ruta para mostrar el código QR
-app.get("/", (req, res) => {
-  const qrImagePath = "out.png";
-  res.sendFile(qrImagePath, { root: __dirname });
-});
 
 /// Import Routings
 const authRoutes = require("./router/auth");
