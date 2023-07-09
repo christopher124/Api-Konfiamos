@@ -14,18 +14,21 @@ const app = express();
 let client = null;
 let waitingForPaymentDate = false;
 let waitingForCode = false;
+let sessionIsActive = false;
 
-async function initVenomBot() {
-  if (!client) {
-    client = await venom
-      .create({
-        session: "session-name", //name of session
-        autoClose: false, // Evitar el cierre automático del cliente
-      })
-      .then((client) => start(client))
-      .catch((error) => {
-        console.log(error);
+async function checkSessionStatus() {
+  if (!client || !sessionIsActive) {
+    try {
+      client = await venom.create({
+        session: "session-name",
+        autoClose: false,
       });
+      sessionIsActive = true;
+      await start(client);
+    } catch (error) {
+      console.log(error);
+      sessionIsActive = false;
+    }
   }
 }
 
@@ -180,7 +183,17 @@ function start(client) {
 }
 
 // Llamar a la función para iniciar Venom Bot
-initVenomBot();
+checkSessionStatus();
+
+app.get("/session-status", (req, res) => {
+  res.json({ sessionIsActive });
+});
+
+app.get("/restart-session", async (req, res) => {
+  sessionIsActive = false;
+  await checkSessionStatus();
+  res.send("Session restarted");
+});
 
 /// Import Routings
 const authRoutes = require("./router/auth");
