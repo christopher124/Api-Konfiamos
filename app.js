@@ -36,13 +36,63 @@ function start(client) {
   client.onMessage(async (message) => {
     if (!message.isGroupMsg) {
       if (
-        (message.body =
-          "Hola" || "hola" || "." || "Quiero prestamo" || "quiero prestamo")
-      )
+        message.body.toLowerCase().includes("hola") ||
+        message.body.toLowerCase().includes("hey") ||
+        message.body.toLowerCase().includes("buenos días") ||
+        message.body.toLowerCase().includes("buenas tardes") ||
+        message.body.toLowerCase().includes("buenas noches")
+      ) {
         client.sendText(
           message.from,
           `¡Hola! Soy Kofibot👋 ¿En qué puedo hacer por ti hoy? 😊
-
+      
+            Por favor, elige una de las opciones a continuación para que pueda ayudarte:
+            1️⃣ Consultar saldo: Obtener información sobre tu préstamo y saldo.
+            2️⃣ ¿Dónde puedo realizar el pago?: Obtener información sobre opciones de pago.
+            3️⃣ Renovar préstamo: Verificar la posibilidad de renovar tu préstamo.
+            📞 Contacto: Obtén información de contacto para comunicarte con nosotros. Escribe la palabra 'Contacto' para obtener los detalles de contacto.
+            
+            ¡Estoy aquí para ayudarte en lo que necesites! 😉
+            `
+        );
+      } else if (message.body === "Contacto") {
+        const contactInformation =
+          "Puedes contactarnos en los siguientes canales:\n" +
+          "📞 Teléfono: 3319883933\n" +
+          "📧 Correo electrónico: info@konfiamos.com\n" +
+          "🌐 Sitio web: www.konfiamos.com";
+        client.sendText(message.from, contactInformation);
+      } else if (message.body === "1") {
+        waitingForPaymentDate = true;
+        client.sendText(
+          message.from,
+          "Por favor, proporciona el código de tu préstamo:"
+        );
+      } else if (message.body === "2") {
+        const paymentInformation = `🏦 Opción (1) Información de pago:
+          - Banco: Banco ABC
+          - Número de cuenta: 123456789
+          - CLABE interbancaria: 987654321
+         ----------------------------------
+         🏦 Opción (2) Información de pago:
+          - Banco: Banco ABC
+          - Número de cuenta: 123456789
+          - CLABE interbancaria: 987654321
+         `;
+        client.sendText(message.from, paymentInformation);
+      } else if (message.body === "3") {
+        waitingForCode = true;
+        client.sendText(
+          message.from,
+          "Por favor, proporciona tu código de préstamo:"
+        );
+      } else {
+        client.sendText(
+          message.from,
+          `Lo siento, no entendí tu mensaje. Por favor, elige una de las opciones disponibles.
+          
+          ¡Hola! Soy Konfibot 👋 ¿En qué puedo hacer por ti hoy? 😊
+    
           Por favor, elige una de las opciones a continuación para que pueda ayudarte:
           1️⃣ Consultar saldo: Obtener información sobre tu préstamo y saldo.
           2️⃣ ¿Dónde puedo realizar el pago?: Obtener información sobre opciones de pago.
@@ -52,37 +102,7 @@ function start(client) {
           ¡Estoy aquí para ayudarte en lo que necesites! 😉
           `
         );
-    } else if (message.body === "Contacto") {
-      const contactInformation =
-        "Puedes contactarnos en los siguientes canales:\n" +
-        "📞 Teléfono: 3319883933\n" +
-        "📧 Correo electrónico: info@konfiamos.com\n" +
-        "🌐 Sitio web: www.konfiamos.com";
-      client.sendText(message.from, contactInformation);
-    } else if (message.body === "1") {
-      waitingForPaymentDate = true;
-      client.sendText(
-        message.from,
-        "Por favor, proporciona el código de tu préstamo:"
-      );
-    } else if (message.body === "2") {
-      const paymentInformation = `🏦 Opción (1) Información de pago:
-      - Banco: Banco ABC
-      - Número de cuenta: 123456789
-      - CLABE interbancaria: 987654321
-   ----------------------------------
-   🏦 Opción (2) Información de pago:
-      - Banco: Banco ABC
-      - Número de cuenta: 123456789
-      - CLABE interbancaria: 987654321
-   `;
-      client.sendText(message.from, paymentInformation);
-    } else if (message.body === "3") {
-      waitingForCode = true;
-      client.sendText(
-        message.from,
-        "Por favor, proporciona tu código de préstamo:"
-      );
+      }
     } else {
       if (waitingForCode) {
         waitingForCode = false;
