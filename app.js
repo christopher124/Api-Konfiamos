@@ -185,14 +185,21 @@ function start(client) {
 // Llamar a la función para iniciar Venom Bot
 checkSessionStatus();
 
-app.get("/session-status", (req, res) => {
+app.get("/session", async (req, res) => {
+  if (!sessionIsActive) {
+    await checkSessionStatus();
+  }
   res.json({ sessionIsActive });
 });
 
-app.get("/restart-session", async (req, res) => {
-  sessionIsActive = false;
-  await checkSessionStatus();
-  res.send("Session restarted");
+app.get("/session/restart", async (req, res) => {
+  if (!sessionIsActive) {
+    sessionIsActive = false;
+    await checkSessionStatus();
+    res.send("Sesión reiniciada");
+  } else {
+    res.send("La sesión ya está activa");
+  }
 });
 
 /// Import Routings
