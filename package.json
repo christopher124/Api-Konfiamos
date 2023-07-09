@@ -25,7 +25,7 @@
     "node-mailjet": "^6.0.2",
     "puppeteer": "^20.7.4",
     "qrcode": "^1.5.3",
-    "venom-bot": "5.0.6"
+    "venom-bot": "^5.0.11"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"

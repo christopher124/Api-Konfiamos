@@ -1,4 +1,5 @@
 const moment = require("moment");
+require("moment/locale/es");
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -12,7 +13,7 @@ const app = express();
 
 let client = null;
 let waitingForPaymentDate = false;
-let waitingForEmail = false;
+let waitingForCode = false;
 
 async function initVenomBot() {
   if (!client) {
@@ -45,8 +46,7 @@ async function initVenomBot() {
             }
           );
         },
-        undefined,
-        { logQR: false }
+        undefined
       )
       .then((client) => start(client))
       .catch((erro) => {
@@ -58,133 +58,146 @@ async function initVenomBot() {
 function start(client) {
   client.onMessage(async (message) => {
     if (!message.isGroupMsg) {
-      if (message.body === "Hola") {
+      if (
+        (message.body =
+          "Hola" || "hola" || "." || "Quiero prestamo" || "quiero prestamo")
+      )
         client.sendText(
           message.from,
-          `¡Hola! 👋 ¿En qué puedo hacer por ti hoy? 😊
-            Por favor, elige una de las opciones a continuación para que pueda ayudarte:
-            1️⃣ Consultar saldo
-            2️⃣ ¿Dónde puedo realizar el pago?
-            3️⃣ Renovar préstamo
-            
-            ¡Estoy aquí para ayudarte en lo que necesites! 😉`
-        );
-      } else if (message.body === "1") {
-        waitingForPaymentDate = true;
-        client.sendText(
-          message.from,
-          "Por favor, proporciona el código de tu préstamo:"
-        );
-      } else if (message.body === "3") {
-        // Información sobre dónde pagar
-        const paymentInformation =
-          "Información de pago:\n- Banco: Banco ABC\n- Número de cuenta: 123456789\n- CLABE interbancaria: 987654321";
-        client.sendText(message.from, paymentInformation);
-      } else if (message.body === "4") {
-        waitingForEmail = true;
-        client.sendText(
-          message.from,
-          "Por favor, proporciona tu correo electrónico:"
-        );
-      } else {
-        if (waitingForEmail) {
-          waitingForEmail = false;
-          const codeLoanRequest = message.body;
+          `¡Hola! Soy Kofibot👋 ¿En qué puedo hacer por ti hoy? 😊
 
-          // Buscar el préstamo asociado al correo electrónico del cliente
-          const loanRequest = await LoanRequest.findOne({
-            code: codeLoanRequest,
-          }).populate("payments");
+          Por favor, elige una de las opciones a continuación para que pueda ayudarte:
+          1️⃣ Consultar saldo: Obtener información sobre tu préstamo y saldo.
+          2️⃣ ¿Dónde puedo realizar el pago?: Obtener información sobre opciones de pago.
+          3️⃣ Renovar préstamo: Verificar la posibilidad de renovar tu préstamo.
+          📞 Contacto: Obtén información de contacto para comunicarte con nosotros. Escribe la palabra 'Contacto' para obtener los detalles de contacto.
+          
+          ¡Estoy aquí para ayudarte en lo que necesites! 😉
+          `
+        );
+    } else if (message.body === "Contacto") {
+      const contactInformation =
+        "Puedes contactarnos en los siguientes canales:\n" +
+        "📞 Teléfono: 3319883933\n" +
+        "📧 Correo electrónico: info@konfiamos.com\n" +
+        "🌐 Sitio web: www.konfiamos.com";
+      client.sendText(message.from, contactInformation);
+    } else if (message.body === "1") {
+      waitingForPaymentDate = true;
+      client.sendText(
+        message.from,
+        "Por favor, proporciona el código de tu préstamo:"
+      );
+    } else if (message.body === "2") {
+      const paymentInformation = `🏦 Opción (1) Información de pago:
+      - Banco: Banco ABC
+      - Número de cuenta: 123456789
+      - CLABE interbancaria: 987654321
+   ----------------------------------
+   🏦 Opción (2) Información de pago:
+      - Banco: Banco ABC
+      - Número de cuenta: 123456789
+      - CLABE interbancaria: 987654321
+   `;
+      client.sendText(message.from, paymentInformation);
+    } else if (message.body === "3") {
+      waitingForCode = true;
+      client.sendText(
+        message.from,
+        "Por favor, proporciona tu código de préstamo:"
+      );
+    } else {
+      if (waitingForCode) {
+        waitingForCode = false;
+        const loanCode = message.body;
 
-          if (!loanRequest) {
-            client.sendText(
-              message.from,
-              "No se encontró ningún préstamo asociado al codigo."
-            );
+        // Consultar el préstamo asociado al código
+        const loanRequest = await LoanRequest.findOne({
+          code: loanCode,
+        }).populate("payments");
+
+        if (!loanRequest) {
+          client.sendText(
+            message.from,
+            "No se encontró ningún préstamo con ese código."
+          );
+        } else {
+          const payments = loanRequest.payments;
+          const paidPayments = payments.filter((payment) => payment.paid);
+
+          if (paidPayments.length >= 8) {
+            const response =
+              "Eres candidato para renovar tu préstamo. En breve uno de nuestros asesores se comunicará contigo para que puedas renovar.";
+            client.sendText(message.from, response);
           } else {
-            // Resto de la lógica para mostrar la información del préstamo y verificar la renovación
-            const payments = loanRequest.payments;
-            const totalPayments = payments.length;
-
-            if (totalPayments >= 8) {
-              const lastPaymentDate = payments[totalPayments - 1].paymentDate;
-              const nextRenewalDate = moment(nextPaymentDate)
-                .format("LL")
-                .add(30, "days")
-                .format("LL");
-              const response = `Puedes renovar tu préstamo. La próxima fecha disponible para renovación es el ${nextRenewalDate}.`;
-              client.sendText(message.from, response);
-            } else {
-              client.sendText(
-                message.from,
-                "No cumples con los requisitos para renovar tu préstamo."
-              );
-            }
+            const response =
+              "No eres candidato para renovar tu préstamo en este momento.";
+            client.sendText(message.from, response);
           }
-        } else if (waitingForPaymentDate) {
-          waitingForPaymentDate = false;
-          const loanCode = message.body;
+        }
+      } else if (waitingForPaymentDate) {
+        waitingForPaymentDate = false;
+        const loanCode = message.body;
 
-          // Consultar el saldo y la información del préstamo
-          const loanRequest = await LoanRequest.findOne({
-            code: loanCode,
-          }).populate("payments");
+        // Consultar el saldo y la información del préstamo
+        const loanRequest = await LoanRequest.findOne({
+          code: loanCode,
+        }).populate("payments");
 
-          if (!loanRequest) {
-            client.sendText(
-              message.from,
-              "No se encontró ningún préstamo con ese código."
-            );
-          } else {
-            const payments = loanRequest.payments;
-            const periodPaid = loanRequest.periodPaid;
-            const totalPaid = payments.filter((payment) => payment.paid).length;
-            const status = loanRequest.status;
-            const amountRequested = loanRequest.amountRequested;
-            const totalAmount = loanRequest.totalAmount;
+        if (!loanRequest) {
+          client.sendText(
+            message.from,
+            "No se encontró ningún préstamo con ese código."
+          );
+        } else {
+          const payments = loanRequest.payments;
+          const periodPaid = loanRequest.periodPaid;
+          const totalPaid = payments.filter((payment) => payment.paid).length;
+          const status = loanRequest.status;
+          const amountRequested = loanRequest.amountRequested;
+          const totalAmount = loanRequest.totalAmount;
 
-            // Lógica para determinar la siguiente fecha de pago
-            const today = moment().startOf("day");
-            let nextPaymentDate = null;
+          // Lógica para determinar la siguiente fecha de pago
+          const today = moment().startOf("day");
+          let nextPaymentDate = null;
 
-            for (let i = 0; i < payments.length; i++) {
-              const payment = payments[i];
+          for (let i = 0; i < payments.length; i++) {
+            const payment = payments[i];
 
-              if (!payment.paid) {
-                const paymentDate = moment(payment.paymentDate);
+            if (!payment.paid) {
+              const paymentDate = moment(payment.paymentDate);
 
-                if (!nextPaymentDate || paymentDate.isBefore(nextPaymentDate)) {
-                  nextPaymentDate = paymentDate;
-                }
+              if (!nextPaymentDate || paymentDate.isBefore(nextPaymentDate)) {
+                nextPaymentDate = paymentDate;
               }
             }
+          }
 
-            if (nextPaymentDate === null) {
-              client.sendText(
-                message.from,
-                "Ya has realizado todos los pagos para este préstamo."
-              );
-            } else {
-              const formattedNextPaymentDate =
-                moment(nextPaymentDate).format("LL");
-              const periodsPaid = periodPaid;
-              const periodsRemaining = payments.length - periodsPaid;
-              const remainingAmount =
-                (payments.length - totalPaid) * payments[0].paymentAmount;
+          if (nextPaymentDate === null) {
+            client.sendText(
+              message.from,
+              "Ya has realizado todos los pagos para este préstamo."
+            );
+          } else {
+            const formattedNextPaymentDate =
+              moment(nextPaymentDate).format("LL");
+            const periodsPaid = periodPaid;
+            const periodsRemaining = payments.length - periodsPaid;
+            const remainingAmount =
+              (payments.length - totalPaid) * payments[0].paymentAmount;
 
-              let response = "Información de pagos:\n";
-              response += `Estatus del préstamo: ${
-                status ? "Al corriente" : "Pendiente"
-              }\n`;
-              response += `Monto solicitado: ${amountRequested}\n`;
-              response += `Monto con interes: ${totalAmount}\n`;
-              response += `Próxima fecha de pago: ${formattedNextPaymentDate}\n`;
-              response += `Pagos abonados: ${periodsPaid}\n`;
-              response += `Pagos restantes: ${periodsRemaining}\n`;
-              response += `Cantidad restante para pagar: ${remainingAmount}\n`;
+            let response = "Información de pagos:\n";
+            response += `Estatus del préstamo: ${
+              status ? "Al corriente" : "Pendiente"
+            }\n`;
+            response += `Monto solicitado: ${amountRequested}\n`;
+            response += `Monto con interes: ${totalAmount}\n`;
+            response += `Próxima fecha de pago: ${formattedNextPaymentDate}\n`;
+            response += `Pagos abonados: ${periodsPaid}\n`;
+            response += `Pagos restantes: ${periodsRemaining}\n`;
+            response += `Cantidad restante para pagar: ${remainingAmount}\n`;
 
-              client.sendText(message.from, response);
-            }
+            client.sendText(message.from, response);
           }
         }
       }
