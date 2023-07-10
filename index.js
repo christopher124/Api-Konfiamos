@@ -25,7 +25,7 @@ const PORT = process.env.POST || 3977;
     console.log("##### API REST ######");
     console.log("#####################");
     console.log(`http://${IP_SERVER}:${PORT}/api/${API_VERSION}`);
-    app.listen(process.env.PORT, '0.0.0.0', () => {
+    app.listen(PORT, () => {
       console.log(`La aplicación está escuchando en el puerto ${PORT}`);
     });
   } catch (error) {
