@@ -4,6 +4,39 @@ const LoanRequest = require("../models/loanRequest");
 const Payment = require("../models/payment");
 const Customer = require("../models/customer");
 
+// Controlador para obtener el monto total invertido en préstamos
+async function getTotalInvestment(req, res) {
+  try {
+    const totalInvestment = await LoanRequest.aggregate([
+      {
+        $group: {
+          _id: { $month: "$startDate" }, // Agrupar por mes utilizando el campo startDate
+          totalAmount: { $sum: "$amountRequested" },
+        },
+      },
+      {
+        $project: {
+          month: "$_id",
+          totalAmount: 1,
+          _id: 0,
+        },
+      },
+      {
+        $sort: { month: 1 },
+      },
+    ]);
+
+    res.status(200).send({ totalInvestment });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      msg:
+        "Error al obtener los montos totales invertidos por mes: " +
+        error.message,
+    });
+  }
+}
+
 // Función para crear una solicitud de préstamo
 async function createLoanRequest(req, res) {
   const { customerId, amountRequested, period, startDate, interestRate } =
@@ -436,6 +469,7 @@ async function sendPaymentReminderToOwner() {
 setInterval(updateLoanStatusSetInterval, 3600000); // Ejemplo: cada 1 hora
 setInterval(sendPaymentReminderToOwner, 86400000); // Ejemplo: cada 24 horas
 module.exports = {
+  getTotalInvestment,
   createLoanRequest,
   getLoanRequests,
   getLoanRequest,

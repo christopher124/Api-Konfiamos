@@ -10,6 +10,8 @@ const md_upload = multiparty({
 
 const api = express.Router();
 
+api.get("/totalinvestment", LoanRequestController.getTotalInvestment);
+
 // creacion del prestamo
 api.post(
   "/loanrequest",
