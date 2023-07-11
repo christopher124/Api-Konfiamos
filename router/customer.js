@@ -36,12 +36,9 @@ api.put(
 );
 // Obtener todos los cliente
 api.get("/customers", [md_auth.asureAuth], CustomerController.getCustomers);
-// Obtener todos los cliente eliminados
-// api.get(
-//   "/customersdeleted",
-//   [md_auth.asureAuth],
-//   CustomerController.getDeletedCustomers
-// );
+
+// Ruta para contar clientes
+api.get("/customers/count", CustomerController.getCustomerCount);
 
 // Obtener un cliente
 api.get("/customer/:id", [md_auth.asureAuth], CustomerController.getCustomer);

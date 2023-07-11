@@ -4,6 +4,24 @@ const image = require("../utils/image");
 const path = require("path");
 const fs = require("fs");
 
+// Controlador para obtener el recuento de clientes registrados,con prestamo y sin prestamo
+async function getCustomerCount(req, res) {
+  try {
+    const countWithLoan = await Customer.countDocuments({ status: true });
+    const countWithoutLoan = await Customer.countDocuments({ status: false });
+
+    res.status(200).send({
+      countWithLoan: countWithLoan,
+      countWithoutLoan: countWithoutLoan,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      msg: "Error al obtener el recuento de clientes: " + error.message,
+    });
+  }
+}
+
 // funtion para crear un cliente
 async function createCustumer(req, res) {
   const {
@@ -195,6 +213,7 @@ async function getCustomer(req, res) {
 }
 
 module.exports = {
+  getCustomerCount,
   createCustumer,
   updateCustumer,
   deleteCustomer,
