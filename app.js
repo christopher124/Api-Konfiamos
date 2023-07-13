@@ -34,7 +34,7 @@ async function checkSessionStatus() {
 
 function start(client) {
   client.onMessage(async (message) => {
-    if (!message.isGroupMsg && message.body) {
+    if (!message.isGroupMsg) {
       // Agregar verificación para message.body {
       if (
         message.body.toLowerCase().includes("hola") ||
@@ -104,10 +104,7 @@ function start(client) {
           `
         );
       }
-    } else if (
-      message.isGroupMsg &&
-      (waitingForCode || waitingForPaymentDate)
-    ) {
+    } else {
       if (waitingForCode) {
         waitingForCode = false;
         const loanCode = message.body;
