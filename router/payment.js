@@ -1,6 +1,6 @@
 const express = require("express");
 const md_auth = require("../middlewares/authenticated");
-const paymentController = require("../controllers/payment");
+const PaymentController = require("../controllers/payment");
 
 const api = express.Router();
 
@@ -8,10 +8,10 @@ const api = express.Router();
 api.get(
   "/loanpayments/:id",
   [md_auth.asureAuth],
-  paymentController.getLoanPayments
+  PaymentController.getLoanPayments
 );
 
 // actulizacion del array de los pagos del cliente
-api.put("/loanpayment/:id", paymentController.updatePaymentStatus);
+api.put("/loanpayment/:id", PaymentController.updatePaymentStatus);
 
 module.exports = api;
