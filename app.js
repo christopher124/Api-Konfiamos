@@ -34,7 +34,7 @@ async function checkSessionStatus() {
 
 function start(client) {
   client.onMessage(async (message) => {
-    if (!message.isGroupMsg) {
+    if (!message.isGroupMsg && message.body) {
       // Agregar verificación para message.body {
       if (
         message.body.toLowerCase().includes("hola") ||
