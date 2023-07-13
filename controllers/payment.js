@@ -105,7 +105,7 @@ async function updatePaymentStatusSetInterval() {
 }
 
 // Ejecutar la función de actualización cada cierto período de tiempo
-setInterval(updatePaymentStatusSetInterval, 3600000); // Ejemplo: cada 1 hora
+setInterval(updatePaymentStatusSetInterval, 86400000); // Ejemplo: cada 24 hora
 
 module.exports = {
   getLoanPayments,
