@@ -34,7 +34,8 @@ async function checkSessionStatus() {
 
 function start(client) {
   client.onMessage(async (message) => {
-    if (!message.isGroupMsg) {
+    if (!message.isGroupMsg && message.body) {
+      // Agregar verificación para message.body {
       if (
         message.body.toLowerCase().includes("hola") ||
         message.body.toLowerCase().includes("hey") ||
@@ -103,7 +104,10 @@ function start(client) {
           `
         );
       }
-    } else {
+    } else if (
+      message.isGroupMsg &&
+      (waitingForCode || waitingForPaymentDate)
+    ) {
       if (waitingForCode) {
         waitingForCode = false;
         const loanCode = message.body;
@@ -201,6 +205,62 @@ function start(client) {
     }
   });
 }
+
+//funcion para recordar si hay pagos pendientes
+async function sendPaymentReminderToOwner() {
+  try {
+    const loanRequests = await LoanRequest.find()
+      .populate({
+        path: "payments",
+        select: "paymentAmount status dueDate",
+      })
+      .populate("customer");
+
+    for (const loanRequest of loanRequests) {
+      const payments = loanRequest.payments;
+      const customer = loanRequest.customer;
+
+      // Verificar si hay algún pago con el estado "Atrazado"
+      const anyPaymentDelayed = payments.some(
+        (payment) => payment.status === "Atrazado"
+      );
+
+      if (anyPaymentDelayed) {
+        // Obtener la información relevante del préstamo
+        const { firstname } = customer;
+        const { totalAmount } = loanRequest;
+
+        // Obtener el pago atrasado
+        const delayedPayment = payments.find(
+          (payment) => payment.status === "Atrazado"
+        );
+
+        // Obtener la fecha límite de pago
+        const dueDate = delayedPayment ? delayedPayment.dueDate : null;
+        const formattedDueDate = dueDate
+          ? moment(dueDate).format("LL")
+          : "Fecha desconocida";
+
+        // Construir el mensaje de recordatorio
+        const message = `Recordatorio de pago:\nPréstamo atrasado para ${firstname} por un monto de ${totalAmount}. Monto pendiente: ${delayedPayment.paymentAmount}. Fecha límite de pago: ${formattedDueDate}. Por favor, recuerda contactar al cliente y solicitarle el pago lo antes posible.`;
+
+        // Enviar el mensaje utilizando Venom Bot
+        await client.sendText("523323326196@c.us", message);
+      }
+    }
+
+    console.log(
+      "Notificación de préstamos atrasados enviada al propietario del bot."
+    );
+  } catch (error) {
+    console.error(
+      "Error al enviar la notificación de préstamos atrasados al propietario del bot:",
+      error
+    );
+  }
+}
+
+setInterval(sendPaymentReminderToOwner, 21600000); // Ejemplo: cada 6 horas
 
 // Llamar a la función para iniciar Venom Bot
 checkSessionStatus();
