@@ -37,6 +37,34 @@ async function getTotalInvestment(req, res) {
   }
 }
 
+// Controlador para obtener el conteo de préstamos por estado
+async function getLoanStatusCounts(req, res) {
+  try {
+    const loanStatusCounts = await LoanRequest.aggregate([
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const loanStatus = {};
+
+    loanStatusCounts.forEach((status) => {
+      loanStatus[status._id] = parseInt(status.count);
+    });
+
+    res.status(200).send({ loanStatus });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      msg:
+        "Error al obtener el conteo de préstamos por estado: " + error.message,
+    });
+  }
+}
+
 // Función para crear una solicitud de préstamo
 async function createLoanRequest(req, res) {
   const { customerId, amountRequested, period, startDate, interestRate } =
@@ -394,7 +422,7 @@ async function updateLoanStatusSetInterval() {
       } else {
         // Verificar si todos los pagos están al corriente
         const allPaymentsPaid = payments.every(
-          (payment) => payment.status === "al corriente"
+          (payment) => payment.status === "Al corriente"
         );
 
         if (allPaymentsPaid) {
@@ -411,65 +439,13 @@ async function updateLoanStatusSetInterval() {
     console.error("Error al actualizar el estado de los préstamos:", error);
   }
 }
-//funcion para recordar si hay pagos pendientes
-async function sendPaymentReminderToOwner() {
-  try {
-    const loanRequests = await LoanRequest.find()
-      .populate({
-        path: "payments",
-        select: "amount status dueDate",
-      })
-      .populate("customer");
-
-    for (const loanRequest of loanRequests) {
-      const payments = loanRequest.payments;
-      const customer = loanRequest.customer;
-
-      // Verificar si hay algún pago con el estado "Atrazado"
-      const anyPaymentDelayed = payments.some(
-        (payment) => payment.status === "Atrazado"
-      );
-
-      if (anyPaymentDelayed) {
-        // Obtener la información relevante del préstamo
-        const { firstname } = customer;
-        const { totalAmount } = loanRequest;
-
-        // Obtener el pago atrasado
-        const delayedPayment = payments.find(
-          (payment) => payment.status === "Atrazado"
-        );
-
-        // Obtener la fecha límite de pago
-        const dueDate = delayedPayment ? delayedPayment.dueDate : null;
-        const formattedDueDate = dueDate
-          ? moment(dueDate).format("LL")
-          : "Fecha desconocida";
-
-        // Construir el mensaje de recordatorio
-        const message = `Recordatorio de pago:\nPréstamo atrasado para ${firstname} por un monto de ${totalAmount}. Monto pendiente: ${delayedPayment.amount}. Fecha límite de pago: ${formattedDueDate}. Por favor, recuerda contactar al cliente y solicitarle el pago lo antes posible.`;
-
-        // Enviar el mensaje utilizando Venom Bot
-        await client.sendText("523323326196@c.us", message);
-      }
-    }
-
-    console.log(
-      "Notificación de préstamos atrasados enviada al propietario del bot."
-    );
-  } catch (error) {
-    console.error(
-      "Error al enviar la notificación de préstamos atrasados al propietario del bot:",
-      error
-    );
-  }
-}
 
 // Ejecutar la función de actualización cada cierto período de tiempo
 setInterval(updateLoanStatusSetInterval, 3600000); // Ejemplo: cada 1 hora
-setInterval(sendPaymentReminderToOwner, 86400000); // Ejemplo: cada 24 horas
+
 module.exports = {
   getTotalInvestment,
+  getLoanStatusCounts,
   createLoanRequest,
   getLoanRequests,
   getLoanRequest,
